@@ -6,3 +6,10 @@ services:
       $accessDecisionManager: '@security.access.decision_manager'
 
   HalloVerden\VoterBundle\Security\SecurityInterface: '@hallo_verden_voter.security'
+
+  hallo_verden_voter.oauth_authorization_voter:
+    class: HalloVerden\VoterBundle\Security\Voter\OauthAuthorizationVoter
+    arguments:
+      $security: '@hallo_verden_voter.security'
+    tags:
+      - { name: security.voter }
