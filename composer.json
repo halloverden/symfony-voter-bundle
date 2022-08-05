@@ -1,0 +1,23 @@
+{
+    "name": "halloverden/symfony-voter-bundle",
+    "description": "Common voters for symfony",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "HalloVerden\\VoterBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tom Roar Furunes",
+            "email": "tom.roar@halloverden.no"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.1",
+        "symfony/security-bundle": "^5.4|^6.0"
+    }
+}
