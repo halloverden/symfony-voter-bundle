@@ -1,0 +1,8 @@
+services:
+  hallo_verden_voter.security:
+    class: HalloVerden\VoterBundle\Security\Security
+    arguments:
+      $security: '@security.helper'
+      $accessDecisionManager: '@security.access.decision_manager'
+
+  HalloVerden\VoterBundle\Security\SecurityInterface: '@hallo_verden_voter.security'

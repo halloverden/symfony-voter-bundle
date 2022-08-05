@@ -8,6 +8,11 @@
             "HalloVerden\\VoterBundle\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "HalloVerden\\VoterBundle\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Tom Roar Furunes",
@@ -18,6 +23,10 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.1",
-        "symfony/security-bundle": "^5.4|^6.0"
+        "symfony/security-bundle": "^5.4|^6.0",
+        "doctrine/collections": "^1.6"
+    },
+    "require-dev": {
+        "symfony/phpunit-bridge": "^6.1"
     }
 }
