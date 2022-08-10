@@ -25,7 +25,7 @@
         "php": ">=8.1",
         "symfony/security-bundle": "^5.4|^6.0",
         "doctrine/collections": "^1.6",
-        "halloverden/symfony-jwt-authenticator-bundle": "^0.1.0"
+        "halloverden/symfony-jwt-authenticator-bundle": "^1.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^6.1"
