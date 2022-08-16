@@ -28,6 +28,7 @@
         "halloverden/symfony-jwt-authenticator-bundle": "^1.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^6.1"
+        "symfony/phpunit-bridge": "^6.1",
+        "halloverden/symfony-authenticator-restrictor-bundle": "^1.0"
     }
 }
