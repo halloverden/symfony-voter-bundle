@@ -13,3 +13,13 @@ services:
       $security: '@hallo_verden_voter.security'
     tags:
       - { name: security.voter }
+
+  hallo_verden_voter.authentication_voter:
+    class: HalloVerden\VoterBundle\Security\Voter\AuthenticationVoter
+    tags:
+      - { name: security.voter }
+
+  hallo_verden_voter.set_authenticator_on_login_listener:
+    class: HalloVerden\VoterBundle\EventListener\SetAuthenticatorOnLoginListener
+    tags:
+      - { name: kernel.event_subscriber }
