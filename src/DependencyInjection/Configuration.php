@@ -20,6 +20,12 @@ class Configuration implements ConfigurationInterface {
           ->defaultValue([])
           ->scalarPrototype()->end()
         ->end()
+        ->arrayNode('endpoint_scope_voter')
+          ->addDefaultsIfNotSet()
+          ->children()
+            ->scalarNode('scope_prefix')->defaultNull()->end()
+          ->end()
+        ->end()
       ->end();
 
     return $treeBuilder;
