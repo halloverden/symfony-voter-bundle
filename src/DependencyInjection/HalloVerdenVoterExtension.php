@@ -20,6 +20,23 @@ class HalloVerdenVoterExtension extends ConfigurableExtension {
     if (!empty($mergedConfig['admin_roles'])) {
       $container->getDefinition('hallo_verden_voter.security')->setArgument('$adminRoles', $mergedConfig['admin_roles']);
     }
+
+    $this->configureEndpointScopeVoter($mergedConfig['endpoint_scope_voter'], $container);
+  }
+
+  /**
+   * @param array            $config
+   * @param ContainerBuilder $container
+   *
+   * @return void
+   */
+  private function configureEndpointScopeVoter(array $config, ContainerBuilder $container): void {
+    if (null === ($config['scope_prefix'] ?? null)) {
+      return;
+    }
+
+    $container->getDefinition('hallo_verden_voter.endpoint_scope_voter')
+      ->setArgument('$scopePrefix', $config['scope_prefix']);
   }
 
 }

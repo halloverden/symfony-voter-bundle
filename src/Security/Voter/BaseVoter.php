@@ -34,6 +34,10 @@ abstract class BaseVoter extends Voter {
       return false;
     }
 
+    if (null === $subjects) {
+      return true;
+    }
+
     if (!\is_array($subjects) && !($subjects instanceof Collection)) {
       return false;
     }
