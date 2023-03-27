@@ -2,6 +2,7 @@
 
 namespace HalloVerden\VoterBundle\Security\Voter;
 
+use HalloVerden\VoterBundle\EndpointScope\EndpointScopeQueryParamContext;
 use HalloVerden\VoterBundle\Security\SecurityInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -36,7 +37,7 @@ class EndpointScopeVoter extends BaseVoter {
    * @return string[]
    */
   protected function getSupportedClasses(): array {
-    return [];
+    return [EndpointScopeQueryParamContext::class];
   }
 
   /**
@@ -45,16 +46,18 @@ class EndpointScopeVoter extends BaseVoter {
   protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool {
     switch ($attribute) {
       case self::ENDPOINT_SCOPE:
-        return $this->hasEndpointScope();
+        return $this->hasEndpointScope($this->sortSubjects(\is_array($subject) ? $subject : [], [EndpointScopeQueryParamContext::class], strictLength: false));
     }
 
     throw new \LogicException('This code should not be reached!');
   }
 
   /**
+   * @param EndpointScopeQueryParamContext[] $endpointScopeQueryParamContexts
+   *
    * @return bool
    */
-  private function hasEndpointScope(): bool {
+  private function hasEndpointScope(array $endpointScopeQueryParamContexts): bool {
     $request = $this->requestStack->getCurrentRequest();
     if (null === $request) {
       return false;
@@ -65,7 +68,18 @@ class EndpointScopeVoter extends BaseVoter {
       return false;
     }
 
-    return $this->security->isGranted(OauthAuthorizationVoter::OAUTH_SCOPE, [$this->createScopeName($request, $route)]);
+    $scopeName = $this->createScopeName($request, $route);
+    if (!$this->security->isGranted(OauthAuthorizationVoter::OAUTH_SCOPE, [$scopeName])) {
+      return false;
+    }
+
+    foreach ($endpointScopeQueryParamContexts as $endpointScopeQueryParamContext) {
+      if (!$this->isGrantedAccessToQueryParam($endpointScopeQueryParamContext, $request, $scopeName)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -90,6 +104,28 @@ class EndpointScopeVoter extends BaseVoter {
    */
   protected function createScopeName(Request $request, Route $route): string {
     return \sprintf('%s%s:%s', $this->scopePrefix, \strtolower($request->getMethod()), $route->getPath());
+  }
+
+  /**
+   * @param EndpointScopeQueryParamContext $endpointScopeQueryParamContext
+   * @param Request                        $request
+   * @param string                         $scopeName
+   *
+   * @return bool
+   */
+  private function isGrantedAccessToQueryParam(EndpointScopeQueryParamContext $endpointScopeQueryParamContext, Request $request, string $scopeName): bool {
+    $queryParam = $endpointScopeQueryParamContext->getQueryParam();
+    if (!$request->query->has($queryParam)) {
+      return true;
+    }
+
+    $value = $endpointScopeQueryParamContext->getValueExtractor()($request->query->get($queryParam));
+    if (!$value) {
+      return true;
+    }
+
+    $scopeName .= \sprintf('?%s=%s', $queryParam, $value);
+    return $this->security->isGranted(OauthAuthorizationVoter::OAUTH_SCOPE, [$scopeName]);
   }
 
 }
