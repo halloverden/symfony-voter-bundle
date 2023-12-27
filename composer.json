@@ -1,34 +1,38 @@
 {
-    "name": "halloverden/symfony-voter-bundle",
-    "description": "Common voters for symfony",
-    "type": "symfony-bundle",
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "HalloVerden\\VoterBundle\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "HalloVerden\\VoterBundle\\Tests\\": "tests/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Tom Roar Furunes",
-            "email": "tom.roar@halloverden.no"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require": {
-        "php": ">=8.1",
-        "symfony/security-bundle": "^5.4|^6.0",
-        "doctrine/collections": "^1.6|^2.1",
-        "halloverden/symfony-jwt-authenticator-bundle": "^1.0"
-    },
-    "require-dev": {
-        "symfony/phpunit-bridge": "^6.1",
-        "halloverden/symfony-authenticator-restrictor-bundle": "^1.0"
+  "name": "halloverden/symfony-voter-bundle",
+  "description": "Common voters for symfony",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "HalloVerden\\VoterBundle\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "HalloVerden\\VoterBundle\\Tests\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Tom Roar Furunes",
+      "email": "tom.roar@halloverden.no"
+    },
+    {
+      "name": "Erich Json Fosse",
+      "email": "json@halloverden.no"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "doctrine/collections": "^1.6|^2.1",
+    "halloverden/symfony-jwt-authenticator-bundle": "^1.0",
+    "php": ">=8.1",
+    "symfony/security-bundle": "^5.4|^6.4|^7.0"
+  },
+  "require-dev": {
+    "symfony/phpunit-bridge": "^6.1",
+    "halloverden/symfony-authenticator-restrictor-bundle": "^1.0"
+  }
 }
