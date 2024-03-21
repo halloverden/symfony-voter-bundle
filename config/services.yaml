@@ -29,6 +29,5 @@ services:
     arguments:
       $security: '@hallo_verden_voter.security'
       $requestStack: '@request_stack'
-      $router: '@router'
     tags:
       - { name: security.voter }
