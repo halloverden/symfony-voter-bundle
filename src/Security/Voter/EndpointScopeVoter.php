@@ -2,8 +2,9 @@
 
 namespace HalloVerden\VoterBundle\Security\Voter;
 
-use HalloVerden\VoterBundle\EndpointScope\EndpointScopeContext;
+use HalloVerden\VoterBundle\Route\RouteInfoService;
 use HalloVerden\VoterBundle\Security\SecurityInterface;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -15,9 +16,10 @@ final class EndpointScopeVoter extends BaseVoter {
    * EndpointScopeVoter constructor.
    */
   public function __construct(
-    SecurityInterface $security,
-    private readonly RequestStack $requestStack,
-    private readonly ?string $scopePrefix = null,
+    SecurityInterface                 $security,
+    private readonly RequestStack     $requestStack,
+    private readonly RouteInfoService $routeInfoService,
+    private readonly ?string          $scopePrefix = null,
   ) {
     parent::__construct($security);
   }
@@ -34,33 +36,33 @@ final class EndpointScopeVoter extends BaseVoter {
    * @return string[]
    */
   protected function getSupportedClasses(): array {
-    return [EndpointScopeContext::class];
+    return [];
   }
 
   /**
    * @inheritDoc
+   * @throws InvalidArgumentException
    */
   protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool {
     switch ($attribute) {
       case self::ENDPOINT_SCOPE:
-        return $this->hasEndpointScope(...$this->sortSubjects($subject, [EndpointScopeContext::class]));
+        return $this->hasEndpointScope();
     }
 
     throw new \LogicException('This code should not be reached!');
   }
 
   /**
-   * @param EndpointScopeContext $context
-   *
    * @return bool
+   * @throws InvalidArgumentException
    */
-  private function hasEndpointScope(EndpointScopeContext $context): bool {
+  private function hasEndpointScope(): bool {
     $request = $this->requestStack->getCurrentRequest();
     if (null === $request) {
       return false;
     }
 
-    $scopeName = $this->createScopeName($request, $context);
+    $scopeName = $this->createScopeName($request);
     if (!$this->security->isGranted(OauthAuthorizationVoter::OAUTH_SCOPE, [$scopeName])) {
       return false;
     }
@@ -69,13 +71,13 @@ final class EndpointScopeVoter extends BaseVoter {
   }
 
   /**
-   * @param Request              $request
-   * @param EndpointScopeContext $context
+   * @param Request $request
    *
    * @return string
+   * @throws InvalidArgumentException
    */
-  private function createScopeName(Request $request, EndpointScopeContext $context): string {
-    return \sprintf('%s%s:%s%s', $context->getScopePrefix() ?? $this->scopePrefix, \strtolower($request->getMethod()), $context->getRoutePath(), $context->getScopeSuffix());
+  private function createScopeName(Request $request): string {
+    return \sprintf('%s%s:%s', $this->scopePrefix, \strtolower($request->getMethod()), $this->routeInfoService->getRouteInfo($request)->getPath());
   }
 
 }
