@@ -47,7 +47,7 @@ final class EndpointScopeVoter extends BaseVoter {
   protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool {
     switch ($attribute) {
       case self::ENDPOINT_SCOPE:
-        return $this->hasEndpointScope(...$this->sortSubjects($subject, [EndpointScopeContext::class], false));
+        return $this->hasEndpointScope($subject ? $this->sortSubjects($subject, [EndpointScopeContext::class])[0] : null);
     }
 
     throw new \LogicException('This code should not be reached!');
