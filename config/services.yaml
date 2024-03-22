@@ -24,11 +24,24 @@ services:
     tags:
       - { name: kernel.event_subscriber }
 
+  hallo_verden_voter.route_info_service:
+    class: HalloVerden\VoterBundle\Route\RouteInfoService
+    arguments:
+      $router: '@router.default'
+      $cache: '@cache.system'
+
+  hallo_verden_voter.route_info_cache_warmer:
+    class: HalloVerden\VoterBundle\Cache\RouteInfoCacheWarmer
+    arguments:
+      $routeInfoService: '@hallo_verden_voter.route_info_service'
+    tags:
+      - { name: kernel.cache_warmer }
+
   hallo_verden_voter.endpoint_scope_voter:
     class: HalloVerden\VoterBundle\Security\Voter\EndpointScopeVoter
     arguments:
       $security: '@hallo_verden_voter.security'
       $requestStack: '@request_stack'
-      $router: '@router'
+      $routeInfoService: '@hallo_verden_voter.route_info_service'
     tags:
       - { name: security.voter }
