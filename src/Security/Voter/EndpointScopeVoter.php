@@ -2,6 +2,7 @@
 
 namespace HalloVerden\VoterBundle\Security\Voter;
 
+use HalloVerden\VoterBundle\EndpointScope\EndpointScopeContext;
 use HalloVerden\VoterBundle\Route\RouteInfoService;
 use HalloVerden\VoterBundle\Security\SecurityInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -36,7 +37,7 @@ final class EndpointScopeVoter extends BaseVoter {
    * @return string[]
    */
   protected function getSupportedClasses(): array {
-    return [];
+    return [EndpointScopeContext::class];
   }
 
   /**
@@ -46,23 +47,25 @@ final class EndpointScopeVoter extends BaseVoter {
   protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool {
     switch ($attribute) {
       case self::ENDPOINT_SCOPE:
-        return $this->hasEndpointScope();
+        return $this->hasEndpointScope(...$this->sortSubjects($subject, [EndpointScopeContext::class], false));
     }
 
     throw new \LogicException('This code should not be reached!');
   }
 
   /**
+   * @param EndpointScopeContext|null $context
+   *
    * @return bool
    * @throws InvalidArgumentException
    */
-  private function hasEndpointScope(): bool {
+  private function hasEndpointScope(?EndpointScopeContext $context = null): bool {
     $request = $this->requestStack->getCurrentRequest();
     if (null === $request) {
       return false;
     }
 
-    $scopeName = $this->createScopeName($request);
+    $scopeName = $this->createScopeName($request, $context);
     if (!$this->security->isGranted(OauthAuthorizationVoter::OAUTH_SCOPE, [$scopeName])) {
       return false;
     }
@@ -71,13 +74,20 @@ final class EndpointScopeVoter extends BaseVoter {
   }
 
   /**
-   * @param Request $request
+   * @param Request                   $request
+   * @param EndpointScopeContext|null $context
    *
    * @return string
    * @throws InvalidArgumentException
    */
-  private function createScopeName(Request $request): string {
-    return \sprintf('%s%s:%s', $this->scopePrefix, \strtolower($request->getMethod()), $this->routeInfoService->getRouteInfo($request)->getPath());
+  private function createScopeName(Request $request, ?EndpointScopeContext $context = null): string {
+    return \sprintf(
+      '%s%s:%s%s',
+        $context->getScopePrefix() ?? $this->scopePrefix,
+      \strtolower($request->getMethod()),
+      $this->routeInfoService->getRouteInfo($request)->getPath(),
+      $context->getScopeSuffix()
+    );
   }
 
 }
