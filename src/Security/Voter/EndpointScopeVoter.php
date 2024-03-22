@@ -83,10 +83,10 @@ final class EndpointScopeVoter extends BaseVoter {
   private function createScopeName(Request $request, ?EndpointScopeContext $context = null): string {
     return \sprintf(
       '%s%s:%s%s',
-        $context->getScopePrefix() ?? $this->scopePrefix,
+        $context?->getScopePrefix() ?? $this->scopePrefix,
       \strtolower($request->getMethod()),
       $this->routeInfoService->getRouteInfo($request)->getPath(),
-      $context->getScopeSuffix()
+      $context?->getScopeSuffix()
     );
   }
 
