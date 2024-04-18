@@ -2,7 +2,7 @@
 
 namespace HalloVerden\VoterBundle\Security\Voter;
 
-use HalloVerden\JwtAuthenticatorBundle\Security\Authenticator\Token\JwtPostAuthenticationToken;
+use HalloVerden\JwtAuthenticatorBundle\Security\JwtPostAuthenticationToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
