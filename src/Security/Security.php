@@ -9,9 +9,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bundle\SecurityBundle\Security as SymfonySecurity;
 
 /**
- * Class Security
- *
- * @package HalloVerden\VoterBundle\Security
  * @deprecated use {@see SymfonySecurity} instead
  */
 class Security implements SecurityInterface {

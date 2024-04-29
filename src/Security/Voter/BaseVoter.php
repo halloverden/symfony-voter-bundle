@@ -9,9 +9,6 @@ use HalloVerden\VoterBundle\Security\SecurityInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter as SymfonyVoter;
 
 /**
- * Class BaseVoter
- *
- * @package HalloVerden\VoterBundle\Security\Voter
  * @deprecated Use {@see Voter} instead.
  */
 abstract class BaseVoter extends SymfonyVoter {
