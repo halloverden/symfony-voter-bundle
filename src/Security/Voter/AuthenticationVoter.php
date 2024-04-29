@@ -4,30 +4,37 @@ namespace HalloVerden\VoterBundle\Security\Voter;
 
 use HalloVerden\VoterBundle\EventListener\SetAuthenticatorOnLoginListener;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class AuthenticationVoter extends Voter {
-  const AUTHENTICATOR = 'authenticator';
+final class AuthenticationVoter extends Voter {
+
+  /**
+   * @deprecated use AuthenticationVoter::class instead
+   */
+  public const AUTHENTICATOR = 'authenticator';
 
   /**
    * @inheritDoc
    */
-  protected function supports(string $attribute, mixed $subjects): bool {
-    if ($attribute !== self::AUTHENTICATOR) {
-      return false;
+  public function supportsAttribute(string $attribute): bool {
+    if (self::AUTHENTICATOR === $attribute) {
+      trigger_deprecation('halloverden/symfony-voter-bundle', '3.0', 'AUTHENTICATOR constant is deprecated, use AuthenticationVoter::class instead');
+      return true;
     }
 
-    if (!is_array($subjects)) {
-      return false;
-    }
-
-    return true;
+    return parent::supportsAttribute($attribute);
   }
 
   /**
    * @inheritDoc
    */
-  protected function voteOnAttribute(string $attribute, mixed $subjects, TokenInterface $token): bool {
+  protected function supportsSubject(int|string $key, mixed $subject, string $attribute): bool {
+    return \is_string($subject);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  protected function doVote(string $attribute, array $subjects, TokenInterface $token): bool {
     if (!$token->hasAttribute(SetAuthenticatorOnLoginListener::TOKEN_PARAMETER_AUTHENTICATORS)) {
       return false;
     }
