@@ -40,7 +40,7 @@ final class HalloVerdenVoterBundle extends AbstractBundle {
     if (isset($config['endpoint_scope_voter']['scope_prefix'])) {
       $container->services()
         ->get('hallo_verden_voter.endpoint_scope_voter')
-        ->arg('$scopePrefix', $config['scope_prefix']);
+        ->arg('$scopePrefix', $config['endpoint_scope_voter']['scope_prefix']);
     }
   }
 
