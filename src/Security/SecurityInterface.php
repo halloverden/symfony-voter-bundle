@@ -4,7 +4,11 @@ namespace HalloVerden\VoterBundle\Security;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bundle\SecurityBundle\Security as SymfonySecurity;
 
+/**
+ * @deprecated use {@see SymfonySecurity} instead
+ */
 interface SecurityInterface {
 
   /**

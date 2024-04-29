@@ -6,12 +6,13 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Security as BaseSecurity;
+use Symfony\Bundle\SecurityBundle\Security as SymfonySecurity;
 
 /**
  * Class Security
  *
  * @package HalloVerden\VoterBundle\Security
+ * @deprecated use {@see SymfonySecurity} instead
  */
 class Security implements SecurityInterface {
 
@@ -19,9 +20,9 @@ class Security implements SecurityInterface {
    * Security constructor.
    */
   public function __construct(
-    private readonly BaseSecurity $security,
+    private readonly SymfonySecurity                $security,
     private readonly AccessDecisionManagerInterface $accessDecisionManager,
-    private readonly array $adminRoles = []) {
+    private readonly array                          $adminRoles = []) {
   }
 
   /**
