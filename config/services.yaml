@@ -8,13 +8,13 @@ services:
   HalloVerden\VoterBundle\Security\SecurityInterface: '@hallo_verden_voter.security'
 
   hallo_verden_voter.oauth_authorization_voter:
+    parent: hallo_verden_voter.voter
     class: HalloVerden\VoterBundle\Security\Voter\OauthAuthorizationVoter
-    arguments:
-      $security: '@hallo_verden_voter.security'
     tags:
       - { name: security.voter }
 
   hallo_verden_voter.authentication_voter:
+    parent: hallo_verden_voter.voter
     class: HalloVerden\VoterBundle\Security\Voter\AuthenticationVoter
     tags:
       - { name: security.voter }
@@ -39,9 +39,16 @@ services:
 
   hallo_verden_voter.endpoint_scope_voter:
     class: HalloVerden\VoterBundle\Security\Voter\EndpointScopeVoter
+    parent: hallo_verden_voter.voter
     arguments:
-      $security: '@hallo_verden_voter.security'
       $requestStack: '@request_stack'
       $routeInfoService: '@hallo_verden_voter.route_info_service'
     tags:
       - { name: security.voter }
+
+  hallo_verden_voter.voter:
+    abstract: true
+    class: HalloVerden\VoterBundle\Security\Voter\Voter
+    arguments:
+      $security: '@security.helper'
+      $accessDecisionManager: '@security.access.decision_manager'
