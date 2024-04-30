@@ -10,7 +10,8 @@ use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Debug\TraceableAuthenticator;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
-class SetAuthenticatorOnLoginListener implements EventSubscriberInterface, LoggerAwareInterface {
+
+final class SetAuthenticatorOnLoginListener implements EventSubscriberInterface, LoggerAwareInterface {
   use LoggerAwareTrait;
 
   const TOKEN_PARAMETER_AUTHENTICATORS = '__hallo_verden_voters.authenticators';

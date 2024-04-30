@@ -4,53 +4,60 @@ namespace HalloVerden\VoterBundle\Security\Voter;
 
 use HalloVerden\VoterBundle\EndpointScope\EndpointScopeContext;
 use HalloVerden\VoterBundle\Route\RouteInfoService;
-use HalloVerden\VoterBundle\Security\SecurityInterface;
 use Psr\Cache\InvalidArgumentException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 
-final class EndpointScopeVoter extends BaseVoter {
-  const ENDPOINT_SCOPE = 'endpoint_scope';
+final class EndpointScopeVoter extends Voter {
 
   /**
-   * EndpointScopeVoter constructor.
+   * @deprecated use EndpointScopeVoter::class instead
+   */
+  public const ENDPOINT_SCOPE = 'endpoint_scope';
+
+  /**
+   * @inheritDoc
    */
   public function __construct(
-    SecurityInterface                 $security,
+    Security                          $security,
+    AccessDecisionManagerInterface    $accessDecisionManager,
     private readonly RequestStack     $requestStack,
     private readonly RouteInfoService $routeInfoService,
-    private readonly ?string          $scopePrefix = null,
+    private readonly ?string          $scopePrefix = null
   ) {
-    parent::__construct($security);
-  }
-
-
-  /**
-   * @return string[]
-   */
-  protected function getSupportedAttributes(): array {
-    return [self::ENDPOINT_SCOPE];
+    parent::__construct($security, $accessDecisionManager);
   }
 
   /**
-   * @return string[]
+   * @inheritDoc
    */
-  protected function getSupportedClasses(): array {
-    return [EndpointScopeContext::class];
+  public function supportsAttribute(string $attribute): bool {
+    if (self::ENDPOINT_SCOPE === $attribute) {
+      trigger_deprecation('halloverden/symfony-voter-bundle', '3.0', 'ENDPOINT_SCOPE constant is deprecated, use EndpointScopeVoter::class instead');
+      return true;
+    }
+
+    return parent::supportsAttribute($attribute);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  protected function supportsSubject(int|string $key, mixed $subject, string $attribute): bool {
+    return match ($key) {
+      0 => $subject instanceof EndpointScopeContext
+    };
   }
 
   /**
    * @inheritDoc
    * @throws InvalidArgumentException
    */
-  protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool {
-    switch ($attribute) {
-      case self::ENDPOINT_SCOPE:
-        return $this->hasEndpointScope($subject ? $this->sortSubjects($subject, [EndpointScopeContext::class])[0] : null);
-    }
-
-    throw new \LogicException('This code should not be reached!');
+  protected function doVote(string $attribute, array $subjects, TokenInterface $token): bool {
+    return $this->checkEndpointScope($subjects[0] ?? null);
   }
 
   /**
@@ -59,14 +66,14 @@ final class EndpointScopeVoter extends BaseVoter {
    * @return bool
    * @throws InvalidArgumentException
    */
-  private function hasEndpointScope(?EndpointScopeContext $context = null): bool {
+  private function checkEndpointScope(?EndpointScopeContext $context = null): bool {
     $request = $this->requestStack->getCurrentRequest();
     if (null === $request) {
       return false;
     }
 
     $scopeName = $this->createScopeName($request, $context);
-    if (!$this->security->isGranted(OauthAuthorizationVoter::OAUTH_SCOPE, [$scopeName])) {
+    if (!$this->security->isGranted(OauthAuthorizationVoter::class, [$scopeName])) {
       return false;
     }
 
@@ -83,7 +90,7 @@ final class EndpointScopeVoter extends BaseVoter {
   private function createScopeName(Request $request, ?EndpointScopeContext $context = null): string {
     return \sprintf(
       '%s%s:%s%s',
-        $context?->getScopePrefix() ?? $this->scopePrefix,
+      $context?->getScopePrefix() ?? $this->scopePrefix,
       \strtolower($request->getMethod()),
       $this->routeInfoService->getRouteInfo($request)->getPath(),
       $context?->getScopeSuffix()

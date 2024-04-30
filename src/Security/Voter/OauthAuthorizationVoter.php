@@ -5,38 +5,38 @@ namespace HalloVerden\VoterBundle\Security\Voter;
 use HalloVerden\JwtAuthenticatorBundle\Security\JwtPostAuthenticationToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-/**
- * Class OauthAuthorizationVoter
- *
- * @package HalloVerden\VoterBundle\Security\Voter
- */
-class OauthAuthorizationVoter extends BaseVoter {
-  const OAUTH_SCOPE = 'oauth.scope';
+
+final class OauthAuthorizationVoter extends Voter {
 
   /**
-   * @return string[]
+   * @deprecated use OauthAuthorizationVoter::class instead
    */
-  protected function getSupportedAttributes(): array {
-    return [self::OAUTH_SCOPE];
-  }
+  public const OAUTH_SCOPE = 'oauth.scope';
 
   /**
-   * @return string[]
+   * @inheritDoc
    */
-  protected function getSupportedClasses(): array {
-    return ['string'];
+  public function supportsAttribute(string $attribute): bool {
+    if (self::OAUTH_SCOPE === $attribute) {
+      trigger_deprecation('halloverden/symfony-voter-bundle', '3.0', 'OAUTH_SCOPE constant is deprecated, use OauthAuthorizationVoter::class instead');
+      return true;
+    }
+
+    return parent::supportsAttribute($attribute);
   }
 
   /**
    * @inheritDoc
    */
-  protected function voteOnAttribute(string $attribute, mixed $subjects, TokenInterface $token): bool {
-    switch ($attribute) {
-      case self::OAUTH_SCOPE:
-        return $this->hasOauthScope($token, $this->sortSubjects($subjects, ['string'], false));
-    }
+  protected function supportsSubject(int|string $key, mixed $subject, string $attribute): bool {
+    return \is_string($subject);
+  }
 
-    throw new \LogicException('This code should not be reached!');
+  /**
+   * @inheritDoc
+   */
+  protected function doVote(string $attribute, array $subjects, TokenInterface $token): bool {
+    return $this->hasOauthScope($token, $subjects);
   }
 
   /**

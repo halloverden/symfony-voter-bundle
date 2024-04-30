@@ -3,9 +3,7 @@
 namespace HalloVerden\VoterBundle\Exception;
 
 /**
- * Class InvalidSubjectException
- *
- * @package HalloVerden\VoterBundle\Exception
+ * @deprecated
  */
 class InvalidSubjectException extends \RuntimeException {
 
