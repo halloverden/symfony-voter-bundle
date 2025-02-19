@@ -173,7 +173,7 @@ abstract class Voter extends SymfonyVoter {
     }
 
     if ($token instanceof UserInterface) {
-      trigger_deprecation('halloverden/symfony-voter-bundle', '3.0.0', 'Providing a user to the "%s()" method is deprecated.', __METHOD__);
+      trigger_deprecation('halloverden/symfony-voter-bundle', '3.0.0', 'Providing a user to the "%s()" method is deprecated use %s::isGrantedOnUser() instead.', __METHOD__, self::class);
       return $this->isGrantedOnUser($token, $attribute, $subject);
     }
 
