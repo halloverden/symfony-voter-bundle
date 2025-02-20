@@ -57,23 +57,24 @@ final class EndpointScopeVoter extends Voter {
    * @throws InvalidArgumentException
    */
   protected function doVote(string $attribute, array $subjects, TokenInterface $token): bool {
-    return $this->checkEndpointScope($subjects[0] ?? null);
+    return $this->checkEndpointScope($token, $subjects[0] ?? null);
   }
 
   /**
+   * @param TokenInterface            $token
    * @param EndpointScopeContext|null $context
    *
    * @return bool
    * @throws InvalidArgumentException
    */
-  private function checkEndpointScope(?EndpointScopeContext $context = null): bool {
+  private function checkEndpointScope(TokenInterface $token, ?EndpointScopeContext $context = null): bool {
     $request = $this->requestStack->getCurrentRequest();
     if (null === $request) {
       return false;
     }
 
     $scopeName = $this->createScopeName($request, $context);
-    if (!$this->security->isGranted(OauthAuthorizationVoter::class, [$scopeName])) {
+    if (!$this->accessDecisionManager->decide($token, [OauthAuthorizationVoter::class], [$scopeName])) {
       return false;
     }
 
