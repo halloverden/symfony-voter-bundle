@@ -2,6 +2,7 @@
 
 namespace HalloVerden\VoterBundle\Security\Voter;
 
+use HalloVerden\VoterBundle\EndpointScope\EndpointScopeContext;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
@@ -98,28 +99,33 @@ abstract class Voter extends SymfonyVoter {
   protected abstract function doVote(string $attribute, array $subjects, TokenInterface $token): bool;
 
   /**
-   * @param string $scope
+   * @param string              $scope
+   * @param TokenInterface|null $token
    *
    * @return bool
    */
-  protected final function hasScope(string $scope): bool {
-    return $this->security->isGranted(OauthAuthorizationVoter::class, [$scope]);
+  protected final function hasScope(string $scope, ?TokenInterface $token = null): bool {
+    return $this->isGranted(OauthAuthorizationVoter::class, [$scope], $token);
   }
 
   /**
-   * @return bool
-   */
-  protected final function hasEndpointScope(): bool {
-    return $this->security->isGranted(EndpointScopeVoter::class);
-  }
-
-  /**
-   * @param string $authenticator
+   * @param TokenInterface|null       $token
+   * @param EndpointScopeContext|null $context
    *
    * @return bool
    */
-  protected final function isAuthenticatedWithAuthenticator(string $authenticator): bool {
-    return $this->security->isGranted(AuthenticationVoter::class, [$authenticator]);
+  protected final function hasEndpointScope(TokenInterface $token = null, EndpointScopeContext $context = null): bool {
+    return $this->isGranted(EndpointScopeVoter::class, null !== $context ? [$context] : null, $token);
+  }
+
+  /**
+   * @param string              $authenticator
+   * @param TokenInterface|null $token
+   *
+   * @return bool
+   */
+  protected final function isAuthenticatedWithAuthenticator(string $authenticator, ?TokenInterface $token = null): bool {
+    return $this->isGranted(AuthenticationVoter::class, [$authenticator], $token);
   }
 
   /**
@@ -131,17 +137,22 @@ abstract class Voter extends SymfonyVoter {
    */
   protected final function isGrantedOnUser(UserInterface $user, string $attribute, mixed $subject = null): bool {
     $token = new PostAuthenticationToken($user, 'main', $user->getRoles());
-    return $this->accessDecisionManager->decide($token, [$attribute], $subject);
+    return $this->isGranted($attribute, $subject, $token);
   }
 
   /**
-   * @param UserInterface|null $user
+   * @param UserInterface|null  $user
+   * @param TokenInterface|null $token
    *
    * @return bool
    */
-  protected final function isGrantedAnyAdmin(?UserInterface $user = null): bool {
+  protected final function isGrantedAnyAdmin(?UserInterface $user = null, ?TokenInterface $token = null): bool {
+    if (null !== $user) {
+      $token = new PostAuthenticationToken($user, 'main', $user->getRoles());
+    }
+
     foreach ($this->adminRoles as $adminRole) {
-      if ($this->isGranted($adminRole, null, $user)) {
+      if ($this->isGranted($adminRole, null, $token)) {
         return true;
       }
     }
@@ -150,17 +161,23 @@ abstract class Voter extends SymfonyVoter {
   }
 
   /**
-   * @param string             $attribute
-   * @param mixed|null         $subject
-   * @param UserInterface|null $user
+   * @param string                            $attribute
+   * @param mixed|null                        $subject
+   * @param UserInterface|TokenInterface|null $token
    *
    * @return bool
    */
-  protected final function isGranted(string $attribute, mixed $subject = null, ?UserInterface $user = null): bool {
-    if (null !== $user) {
-      return $this->isGrantedOnUser($user, $attribute, $subject);
+  protected final function isGranted(string $attribute, mixed $subject = null, UserInterface|TokenInterface|null $token = null): bool {
+    if ($token instanceof TokenInterface) {
+      return $this->accessDecisionManager->decide($token, [$attribute], $subject);
     }
 
+    if ($token instanceof UserInterface) {
+      trigger_deprecation('halloverden/symfony-voter-bundle', '3.0.0', 'Providing a user to the "%s()" method is deprecated use %s::isGrantedOnUser() instead.', __METHOD__, self::class);
+      return $this->isGrantedOnUser($token, $attribute, $subject);
+    }
+
+    trigger_deprecation('halloverden/symfony-voter-bundle', '3.0.0', 'Not providing a token to the "%s()" methods is deprecated.', __METHOD__);
     return $this->security->isGranted($attribute, $subject);
   }
 
